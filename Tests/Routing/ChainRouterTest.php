@@ -207,19 +207,19 @@ class ChainRouterTest extends CmfUnitTestCase
      */
     public function testMatch()
     {
-        $url = '/test';
+        $pathinfo = '/test';
         list($lower, $low, $high) = $this->createRouterMocks();
 
         $high
             ->expects($this->once())
             ->method('match')
-            ->with($url)
+            ->with($pathinfo)
             ->will($this->throwException(new \Symfony\Component\Routing\Exception\ResourceNotFoundException))
         ;
         $low
             ->expects($this->once())
             ->method('match')
-            ->with($url)
+            ->with($pathinfo)
             ->will($this->returnValue(array('test')))
         ;
         $lower
@@ -238,7 +238,7 @@ class ChainRouterTest extends CmfUnitTestCase
      */
     public function testMatchRequest()
     {
-        $url = '/test';
+        $pathinfo = '/test';
         list($lower, $low, $high) = $this->createRouterMocks();
 
         $highest = $this->getMock('Symfony\Cmf\Component\Routing\Tests\Routing\RequestMatcher');
@@ -253,13 +253,13 @@ class ChainRouterTest extends CmfUnitTestCase
         $high
             ->expects($this->once())
             ->method('match')
-            ->with($url)
+            ->with($pathinfo)
             ->will($this->throwException(new \Symfony\Component\Routing\Exception\ResourceNotFoundException))
         ;
         $low
             ->expects($this->once())
             ->method('match')
-            ->with($url)
+            ->with($pathinfo)
             ->will($this->returnValue(array('test')))
         ;
         $lower
@@ -281,7 +281,7 @@ class ChainRouterTest extends CmfUnitTestCase
      */
     public function testMatchWithRequestMatchers()
     {
-        $url = '/test';
+        $pathinfo = '/test';
 
         list($low) = $this->createRouterMocks();
 
@@ -290,22 +290,22 @@ class ChainRouterTest extends CmfUnitTestCase
         $high
             ->expects($this->once())
             ->method('matchRequest')
-            ->with($this->callback(function (Request $r) use ($url) {
-                return $r->getPathInfo() === $url;
+            ->with($this->callback(function (Request $r) use ($pathinfo) {
+                return $r->getPathInfo() === $pathinfo;
             }))
             ->will($this->throwException(new \Symfony\Component\Routing\Exception\ResourceNotFoundException))
         ;
         $low
             ->expects($this->once())
             ->method('match')
-            ->with($url)
+            ->with($pathinfo)
             ->will($this->returnValue(array('test')))
         ;
 
         $this->router->add($low, 10);
         $this->router->add($high, 20);
 
-        $result = $this->router->match($url);
+        $result = $this->router->match($pathinfo);
         $this->assertEquals(array('test'), $result);
     }
 
@@ -314,19 +314,19 @@ class ChainRouterTest extends CmfUnitTestCase
      */
     public function testMatchAndNotAllowed()
     {
-        $url = '/test';
+        $pathinfo = '/test';
         list($low, $high) = $this->createRouterMocks();
 
         $high
             ->expects($this->once())
             ->method('match')
-            ->with($url)
+            ->with($pathinfo)
             ->will($this->throwException(new \Symfony\Component\Routing\Exception\MethodNotAllowedException(array())))
         ;
         $low
             ->expects($this->once())
             ->method('match')
-            ->with($url)
+            ->with($pathinfo)
             ->will($this->returnValue(array('test')))
         ;
         $this->router->add($low, 10);
@@ -341,19 +341,19 @@ class ChainRouterTest extends CmfUnitTestCase
      */
     public function testMatchRequestAndNotAllowed()
     {
-        $url = '/test';
+        $pathinfo = '/test';
         list($low, $high) = $this->createRouterMocks();
 
         $high
             ->expects($this->once())
             ->method('match')
-            ->with($url)
+            ->with($pathinfo)
             ->will($this->throwException(new \Symfony\Component\Routing\Exception\MethodNotAllowedException(array())))
         ;
         $low
             ->expects($this->once())
             ->method('match')
-            ->with($url)
+            ->with($pathinfo)
             ->will($this->returnValue(array('test')))
         ;
         $this->router->add($low, 10);
@@ -368,19 +368,19 @@ class ChainRouterTest extends CmfUnitTestCase
      */
     public function testMatchNotFound()
     {
-        $url = '/test';
+        $pathinfo = '/test';
         list($low, $high) = $this->createRouterMocks();
 
         $high
             ->expects($this->once())
             ->method('match')
-            ->with($url)
+            ->with($pathinfo)
             ->will($this->throwException(new ResourceNotFoundException()))
         ;
         $low
             ->expects($this->once())
             ->method('match')
-            ->with($url)
+            ->with($pathinfo)
             ->will($this->throwException(new ResourceNotFoundException()))
         ;
         $this->router->add($low, 10);
@@ -394,19 +394,19 @@ class ChainRouterTest extends CmfUnitTestCase
      */
     public function testMatchRequestNotFound()
     {
-        $url = '/test';
+        $pathinfo = '/test';
         list($low, $high) = $this->createRouterMocks();
 
         $high
             ->expects($this->once())
             ->method('match')
-            ->with($url)
+            ->with($pathinfo)
             ->will($this->throwException(new ResourceNotFoundException()))
         ;
         $low
             ->expects($this->once())
             ->method('match')
-            ->with($url)
+            ->with($pathinfo)
             ->will($this->throwException(new ResourceNotFoundException()))
         ;
         $this->router->add($low, 10);
@@ -419,11 +419,11 @@ class ChainRouterTest extends CmfUnitTestCase
      * Call match on ChainRouter that has RequestMatcher in the chain.
      *
      * @expectedException \Symfony\Component\Routing\Exception\ResourceNotFoundException
-     * @expectedExceptionMessage None of the routers in the chain matched url '/test'
+     * @expectedExceptionMessage None of the routers in the chain matched pathinfo '/test'
      */
     public function testMatchWithRequestMatchersNotFound()
     {
-        $url = '/test';
+        $pathinfo = '/test';
         $request = Request::create('/test');
 
         $high = $this->getMock('Symfony\Cmf\Component\Routing\Tests\Routing\RequestMatcher');
@@ -437,7 +437,7 @@ class ChainRouterTest extends CmfUnitTestCase
 
         $this->router->add($high, 20);
 
-        $this->router->match($url);
+        $this->router->match($pathinfo);
     }
 
     /**
@@ -447,19 +447,19 @@ class ChainRouterTest extends CmfUnitTestCase
      */
     public function testMatchMethodNotAllowed()
     {
-        $url = '/test';
+        $pathinfo = '/test';
         list($low, $high) = $this->createRouterMocks();
 
         $high
             ->expects($this->once())
             ->method('match')
-            ->with($url)
+            ->with($pathinfo)
             ->will($this->throwException(new MethodNotAllowedException(array())))
         ;
         $low
             ->expects($this->once())
             ->method('match')
-            ->with($url)
+            ->with($pathinfo)
             ->will($this->throwException(new ResourceNotFoundException()))
         ;
         $this->router->add($low, 10);
@@ -475,19 +475,19 @@ class ChainRouterTest extends CmfUnitTestCase
      */
     public function testMatchRequestMethodNotAllowed()
     {
-        $url = '/test';
+        $pathinfo = '/test';
         list($low, $high) = $this->createRouterMocks();
 
         $high
             ->expects($this->once())
             ->method('match')
-            ->with($url)
+            ->with($pathinfo)
             ->will($this->throwException(new MethodNotAllowedException(array())))
         ;
         $low
             ->expects($this->once())
             ->method('match')
-            ->with($url)
+            ->with($pathinfo)
             ->will($this->throwException(new ResourceNotFoundException()))
         ;
         $this->router->add($low, 10);
@@ -498,7 +498,7 @@ class ChainRouterTest extends CmfUnitTestCase
 
     public function testGenerate()
     {
-        $url = '/test';
+        $pathinfo = '/test';
         $name = 'test';
         $parameters = array('test' => 'value');
         list($lower, $low, $high) = $this->createRouterMocks();
@@ -513,7 +513,7 @@ class ChainRouterTest extends CmfUnitTestCase
             ->expects($this->once())
             ->method('generate')
             ->with($name, $parameters, false)
-            ->will($this->returnValue($url))
+            ->will($this->returnValue($pathinfo))
         ;
         $lower
             ->expects($this->never())
@@ -524,7 +524,7 @@ class ChainRouterTest extends CmfUnitTestCase
         $this->router->add($high, 100);
 
         $result = $this->router->generate($name, $parameters);
-        $this->assertEquals($url, $result);
+        $this->assertEquals($pathinfo, $result);
     }
 
     /**

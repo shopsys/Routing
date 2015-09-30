@@ -136,13 +136,13 @@ class ChainRouter implements ChainRouterInterface, WarmableInterface
     /**
      * {@inheritdoc}
      *
-     * Loops through all routes and tries to match the passed url.
+     * Loops through all routes and tries to match the passed URL path.
      *
      * Note: You should use matchRequest if you can.
      */
-    public function match($url)
+    public function match($pathinfo)
     {
-        return $this->doMatch($url);
+        return $this->doMatch($pathinfo);
     }
 
     /**
@@ -156,36 +156,36 @@ class ChainRouter implements ChainRouterInterface, WarmableInterface
     }
 
     /**
-     * Loops through all routers and tries to match the passed request or url.
+     * Loops through all routers and tries to match the passed request or URL path.
      *
-     * At least the  url must be provided, if a request is additionally provided
+     * At least the URL path must be provided, if a request is additionally provided
      * the request takes precedence.
      *
-     * @param string  $url
+     * @param string  $pathinfo
      * @param Request $request
      *
      * @return array An array of parameters
      *
      * @throws ResourceNotFoundException If no router matched.
      */
-    private function doMatch($url, Request $request = null)
+    private function doMatch($pathinfo, Request $request = null)
     {
         $methodNotAllowed = null;
 
         $requestForMatching = $request;
         foreach ($this->all() as $router) {
             try {
-                // the request/url match logic is the same as in Symfony/Component/HttpKernel/EventListener/RouterListener.php
-                // matching requests is more powerful than matching URLs only, so try that first
+                // the request/pathinfo match logic is the same as in Symfony/Component/HttpKernel/EventListener/RouterListener.php
+                // matching requests is more powerful than matching URL paths only, so try that first
                 if ($router instanceof RequestMatcherInterface) {
                     if (empty($requestForMatching)) {
-                        $requestForMatching = Request::create($url);
+                        $requestForMatching = Request::create($pathinfo);
                     }
 
                     return $router->matchRequest($requestForMatching);
                 }
                 // every router implements the match method
-                return $router->match($url);
+                return $router->match($pathinfo);
             } catch (ResourceNotFoundException $e) {
                 if ($this->logger) {
                     $this->logger->debug('Router '.get_class($router).' was not able to match, message "'.$e->getMessage().'"');
@@ -201,7 +201,7 @@ class ChainRouter implements ChainRouterInterface, WarmableInterface
 
         $info = $request
             ? "this request\n$request"
-            : "url '$url'";
+            : "pathinfo '$pathinfo'";
         throw $methodNotAllowed ?: new ResourceNotFoundException("None of the routers in the chain matched $info");
     }
 
@@ -309,7 +309,7 @@ class ChainRouter implements ChainRouterInterface, WarmableInterface
 
     /**
      * Identify if any routers have been added into the chain yet
-     * 
+     *
      * @return boolean
      */
     public function hasRouters()
