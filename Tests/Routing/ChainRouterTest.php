@@ -431,7 +431,9 @@ class ChainRouterTest extends CmfUnitTestCase
         $high
             ->expects($this->once())
             ->method('matchRequest')
-            ->with($request)
+            ->with($this->callback(function (Request $r) use ($pathinfo) {
+                return $r->getPathInfo() === $pathinfo;
+            }))
             ->will($this->throwException(new \Symfony\Component\Routing\Exception\ResourceNotFoundException))
         ;
 

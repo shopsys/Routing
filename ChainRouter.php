@@ -179,7 +179,7 @@ class ChainRouter implements ChainRouterInterface, WarmableInterface
                 // matching requests is more powerful than matching URL paths only, so try that first
                 if ($router instanceof RequestMatcherInterface) {
                     if (empty($requestForMatching)) {
-                        $requestForMatching = Request::create($pathinfo);
+                        $requestForMatching = Request::create('http://fake' . $pathinfo);
                     }
 
                     return $router->matchRequest($requestForMatching);
