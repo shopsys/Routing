@@ -550,6 +550,32 @@ class ChainRouterTest extends CmfUnitTestCase
 
         $this->router->matchRequest(Request::create('/test'));
     }
+    
+    public function testMatchWithTwoSlashesCallsMatchRequestPassingRequestWithCorrectPathInfoWhenRequestContextIsSet()
+    {
+        $url = '//test';
+        
+        $requestMatcher = $this->getMock('Symfony\Cmf\Component\Routing\Tests\Routing\RequestMatcher');
+
+        $requestMatcher
+            ->expects($this->once())
+            ->method('matchRequest')
+            ->with($this->callback(function (Request $request) use ($url) {
+                $this->assertEquals($url, $request->getPathInfo());
+                
+                return true;
+            }))
+            ->willReturn(array($url));
+        ;
+        
+        $requestContext = new RequestContext();
+        $this->router->setContext($requestContext);
+        
+        $this->router->add($requestMatcher, 5);
+
+        $result = $this->router->match($url);
+        $this->assertEquals(array($url), $result);
+    }
 
     public function testGenerate()
     {
